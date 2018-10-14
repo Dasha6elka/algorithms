@@ -1,0 +1,1 @@
+add_executable(queue_and_stack stack.cpp stack.h queue.cpp queue.h main.cpp)
