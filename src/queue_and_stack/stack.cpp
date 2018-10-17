@@ -73,7 +73,10 @@ void RemoveElement(Stack *p_stack, std::vector<int> positions)
 
 std::vector<int> StackFind(Stack *p_stack, char *str)
 {
-    std::vector<int> positions;
+    std::vector<int> positions{};
+    if (!str) {
+        return positions;
+    }
     for (int i = 0; i < p_stack->size; ++i) {
         if (strcmp(p_stack->items[i], str) != 0) {
             continue;

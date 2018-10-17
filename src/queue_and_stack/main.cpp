@@ -12,6 +12,7 @@ CLion 2018.2.4
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <limits>
 
 #include "stack.h"
 #include "queue.h"
@@ -66,20 +67,33 @@ int main(int argc, char *argv[])
                     std::cerr << ex.what() << std::endl;
                 }
                 break;
-            case 5:
-                for (int i = 0; i < p_queue->size; ++i) {
-                    auto positions = StackFind(p_stack, p_queue->items[i]);
+            case 5: {
+                auto diff = std::abs(p_queue->tail - p_queue->head);
+                if (p_queue->tail == p_queue->head && *p_queue->head != nullptr) {
+                    auto positions = StackFind(p_stack, p_queue->head[0]);
                     if (positions.empty()) {
                         continue;
                     }
                     RemoveElement(p_stack, positions);
+                } else {
+                    for (int j = 0; j <= diff; ++j) {
+                        if (p_queue->head[j] == nullptr) continue;
+                        auto positions = StackFind(p_stack, p_queue->head[j]);
+                        if (positions.empty()) {
+                            continue;
+                        }
+                        RemoveElement(p_stack, positions);
+                    }
                 }
                 break;
+            }
             case 6:
                 std::cout << "End of work" << std::endl;
                 isRunning = false;
                 break;
             default:
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cerr << "Mode not found" << std::endl;
         }
 
