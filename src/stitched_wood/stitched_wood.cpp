@@ -3,6 +3,7 @@
 #include <queue>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include "stitched_wood.h"
 
@@ -30,12 +31,8 @@ std::vector<std::string> readFile(const std::string &path)
 void showTree(TreeNode *root)
 {
     if (root != nullptr) {
-
         std::string indent(root->depth, '-');
         std::cout << indent << ' ' << root->value << std::endl;
-        if (root->rthread) {
-            return;
-        }
         showTree(root->left);
         showTree(root->right);
     }
@@ -46,9 +43,6 @@ TreeNode *addNode(TreeNode *root, TreeNode *parent, std::queue<std::string> &fil
     if (file.empty()) {
         return root;
     }
-    if (root != nullptr && root->right != parent) {
-        root->rthread = false;
-    }
     auto line = file.front();
     auto depth = std::count(line.begin(), line.end(), '-');
     if (parent != nullptr && depth == parent->depth) {
@@ -58,37 +52,18 @@ TreeNode *addNode(TreeNode *root, TreeNode *parent, std::queue<std::string> &fil
         return root;
     }
     file.pop();
-    root = new TreeNode(getIntFromString(line), static_cast<unsigned>(depth));
+    line.erase(std::remove(line.begin(), line.end(), '-'), line.end());
+    line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+    root = new TreeNode(line.data(), static_cast<unsigned>(depth));
     root->parent = parent;
-    if (parent != nullptr) {
-        root->right = parent;
-    }
     root->left = addNode(root->left, root, file);
     root->right = addNode(root->right, root, file);
     return root;
 }
 
-int getIntFromString(std::string str)
-{
-    std::stringstream ss;
-    ss << str;
-    std::string temp;
-    int found;
-    while (!ss.eof()) {
-        ss >> temp;
-        if (std::stringstream(temp) >> found) {
-            temp = "";
-        }
-    }
-    return found;
-}
-
 TreeNode *deleteNode(TreeNode *node)
 {
     if (node != nullptr) {
-        if (node->rthread) {
-            return node;
-        }
         deleteNode(node->left);
         deleteNode(node->right);
     } else {
@@ -118,16 +93,14 @@ TreeNode *deleteNode(TreeNode *node)
     return root;
 }
 
-TreeNode *deleteNodeByValue(TreeNode *root, int value)
+TreeNode *deleteNodeByValue(TreeNode *root, TreeValue value)
 {
     TreeNode *nextRoot = root;
-    if (root != nullptr && root->value == value) {
-        nextRoot = deleteNode(root);
-    } else {
-        if (root) {
-            if (root->rthread) {
-                return root;
-            }
+    if (root != nullptr) {
+        const auto compare = strcmp(root->value, value);
+        if (compare == 0) {
+            nextRoot = deleteNode(root);
+        } else {
             deleteNodeByValue(root->left, value);
             deleteNodeByValue(root->right, value);
         }
@@ -135,11 +108,14 @@ TreeNode *deleteNodeByValue(TreeNode *root, int value)
     return nextRoot;
 }
 
-TreeNode::TreeNode(int data, unsigned depth) : value(data), depth(depth)
+TreeNode::TreeNode(TreeValue data, unsigned depth) : depth(depth)
 {
+    std::size_t size = sizeof(TreeValue) / sizeof(char);
+    value = static_cast<TreeValue>(malloc(size * sizeof(char)));
+    strcpy(value, data);
     left = nullptr;
     right = nullptr;
     parent = nullptr;
-    rthread = true;
+    rthread = false;
 }
 

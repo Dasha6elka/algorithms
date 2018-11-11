@@ -36,12 +36,12 @@ int main(int argc, char *argv[])
         showTree(root);
         std::cin >> item;
 
-        if (std::stoi(item) == -1) {
+        if (item == "-1") {
             break;
         }
 
         try {
-            root = deleteNodeByValue(root, std::stoi(item));
+            root = deleteNodeByValue(root, item.data());
         } catch (std::exception &ex) {
             std::cerr << ex.what() << std::endl;
         }

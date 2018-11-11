@@ -6,15 +6,17 @@
 #include <string>
 #include <fstream>
 
+typedef char * TreeValue;
+
 struct TreeNode
 {
-    int value;
+    TreeValue value;
     TreeNode *left, *right;
     bool rthread;
     TreeNode *parent;
     unsigned depth;
 
-    TreeNode(int data, unsigned depth);
+    TreeNode(TreeValue data, unsigned depth);
 };
 
 std::string readPath(char *argv[]);
@@ -25,10 +27,8 @@ TreeNode *addNode(TreeNode *root, TreeNode *parent, std::queue<std::string> &fil
 
 TreeNode *deleteNode(TreeNode *node);
 
-TreeNode *deleteNodeByValue(TreeNode *root, int value);
+TreeNode *deleteNodeByValue(TreeNode *root, TreeValue value);
 
 void showTree(TreeNode *root);
-
-int getIntFromString(std::string str);
 
 #endif //ALGORITHMS_STITCHED_WOOD_H
