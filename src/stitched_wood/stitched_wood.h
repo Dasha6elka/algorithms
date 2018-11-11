@@ -12,7 +12,9 @@ struct TreeNode
 {
     TreeValue value;
     TreeNode *left, *right;
-    bool rthread;
+    bool threads;
+    bool hasThread;
+    TreeNode *thread;
     TreeNode *parent;
     unsigned depth;
 
@@ -29,6 +31,14 @@ TreeNode *deleteNode(TreeNode *node);
 
 TreeNode *deleteNodeByValue(TreeNode *root, TreeValue value);
 
-void showTree(TreeNode *root);
+TreeNode *getNodeByValue(TreeNode *root, TreeValue value);
+
+TreeNode *stitch(TreeNode *root);
+
+void trim(std::string &str);
+
+void showTree(TreeNode *root, TreeNode *referenceRoot);
+
+void showThreads(TreeNode *root);
 
 #endif //ALGORITHMS_STITCHED_WOOD_H
