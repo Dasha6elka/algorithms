@@ -1,13 +1,4 @@
-#include <string>
-#include <algorithm>
-#include <queue>
-#include <sstream>
-#include <iostream>
-#include <cstring>
-#include <stack>
-#include <functional>
-#include <vector>
-
+#include <fstream>
 #include "stitched_wood.h"
 
 std::string readPath(char *argv[])

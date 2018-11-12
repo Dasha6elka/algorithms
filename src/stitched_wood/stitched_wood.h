@@ -1,10 +1,15 @@
 #ifndef ALGORITHMS_STITCHED_WOOD_H
 #define ALGORITHMS_STITCHED_WOOD_H
 
-#include <string>
 #include <queue>
+#include <stack>
+#include <iostream>
 #include <string>
-#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include <sstream>
+#include <cstring>
 
 typedef char * TreeValue;
 

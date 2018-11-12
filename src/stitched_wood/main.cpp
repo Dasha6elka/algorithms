@@ -8,11 +8,6 @@
 CLion 2018.2.5
 */
 
-#include <algorithm>
-#include <queue>
-#include <string>
-#include <iostream>
-
 #include "stitched_wood.h"
 
 int main(int argc, char *argv[])
@@ -42,14 +37,18 @@ int main(int argc, char *argv[])
     }
 
     while (true) {
-        std::cout << std::endl;
+        std::cout << "Tree:" << std::endl;
         showTree(root, referenceRoot);
-        std::cout << std::endl;
+        std::cout << "Threads:" << std::endl;
         showThreads(root);
-        std::cout << std::endl;
+        std::cout << "Enter vertex to delete or enter '-1' for complete" << std::endl;
         std::cin >> item;
 
         if (item == "-1") {
+            std::cout << "Tree:" << std::endl;
+            showTree(root, referenceRoot);
+            std::cout << "Current threads:" << std::endl;
+            showThreads(root);
             break;
         }
 
