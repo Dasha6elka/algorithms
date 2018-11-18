@@ -32,6 +32,14 @@ void showTree(TreeNode *root, TreeNode *referenceRoot)
             std::cout << indent << std::endl;
         }
         if (root != nullptr && root->threads) {
+            if (root->left == nullptr && referenceRoot->left != nullptr) {
+                std::string indent(referenceRoot->left->depth, '-');
+                std::cout << indent << std::endl;
+            }
+            if (referenceRoot->right != nullptr) {
+                std::string indent(referenceRoot->right->depth, '-');
+                std::cout << indent << std::endl;
+            }
             return;
         }
         if (root != nullptr) {
@@ -88,21 +96,14 @@ TreeNode *deleteNode(TreeNode *node)
             }
             TreeNode *parent = node->parent;
             if (parent->left == node) {
-                free(parent->left);
                 parent->left = nullptr;
             } else if (parent->right == node) {
-                free(parent->right);
                 parent->right = nullptr;
             }
             return root;
         }
         if (!node->threads) {
             deleteNode(node->right);
-        } else {
-            auto right = node->right;
-            if (right != nullptr) {
-                right->thread = nullptr;
-            }
         }
         deleteNode(node->left);
     } else {
@@ -116,11 +117,31 @@ TreeNode *deleteNode(TreeNode *node)
     }
 
     if (parent->left == node) {
-        free(parent->left);
-        parent->left = nullptr;
+        if (node->threads)
+        {
+            if (parent->right != nullptr){
+                parent->left = nullptr;
+                parent->right->hasThread = false;
+                parent->right->thread = nullptr;
+            } else {
+                parent->threads = true;
+                parent->right = node->right;
+                parent->right->hasThread = true;
+                parent->right->thread = parent;
+                parent->left = nullptr;
+            }
+        } else {
+            parent->left = nullptr;
+        }
     } else if (parent->right == node) {
-        free(parent->right);
-        parent->right = nullptr;
+        if (node->threads)
+        {
+            parent->threads = true;
+            node->right->thread = parent;
+            parent->right = node->right;
+        } else {
+            parent->right = nullptr;
+        }
     }
 
     return root;

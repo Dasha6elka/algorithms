@@ -37,6 +37,10 @@ int main(int argc, char *argv[])
     }
 
     while (true) {
+        if (root == nullptr) {
+            break;
+        }
+
         std::cout << "Tree:" << std::endl;
         showTree(root, referenceRoot);
         std::cout << "Threads:" << std::endl;
