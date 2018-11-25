@@ -83,6 +83,10 @@ TreeNode *deleteNode(TreeNode *node)
     }
 
     if (node != nullptr) {
+        if (!node->threads) {
+            deleteNode(node->right);
+        }
+        deleteNode(node->left);
         if (node->hasThread && node->thread != nullptr) {
             auto thread = node->thread;
             if (node->threads) {
@@ -102,10 +106,6 @@ TreeNode *deleteNode(TreeNode *node)
             }
             return root;
         }
-        if (!node->threads) {
-            deleteNode(node->right);
-        }
-        deleteNode(node->left);
     } else {
         return node;
     }
