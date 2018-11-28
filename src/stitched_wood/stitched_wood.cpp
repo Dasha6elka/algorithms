@@ -33,12 +33,10 @@ void showTree(TreeNode *root, TreeNode *referenceRoot)
         }
         if (root != nullptr && root->threads) {
             if (root->left == nullptr && referenceRoot->left != nullptr) {
-                std::string indent(referenceRoot->left->depth, '-');
-                std::cout << indent << std::endl;
+                showTree(nullptr, referenceRoot->left);
             }
             if (referenceRoot->right != nullptr) {
-                std::string indent(referenceRoot->right->depth, '-');
-                std::cout << indent << std::endl;
+                showTree(nullptr, referenceRoot->right);
             }
             return;
         }
