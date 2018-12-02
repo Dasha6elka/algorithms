@@ -1,3 +1,4 @@
 add_subdirectory(calculator)
 add_subdirectory(queue_and_stack)
 add_subdirectory(stitched_wood)
+add_subdirectory(dijkstra_algorithm)
