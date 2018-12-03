@@ -10,6 +10,9 @@ CLion 2018.3
 int main(int argc, char *argv[])
 {
     int table[SIZE][SIZE];
+    int startingPoint, endingPoint;
+    bool go = true;
+    std::string goOn;
 
     try {
         auto path = readPath(argv);
@@ -21,5 +24,27 @@ int main(int argc, char *argv[])
         initialTable(queue, table);
     } catch (std::exception &ex) {
         std::cerr << ex.what() << std::endl;
+    }
+
+    while (go) {
+        std::cout << "Enter he starting point: " <<std::endl;
+        std::cin >> startingPoint;
+
+        while () {
+            showTable(table);
+            dijkstra(table);
+        }
+
+        std::cout << "Enter the ending point: " << std::endl;
+        std::cin >> endingPoint;
+
+        minimumPath(table, endingPoint);
+
+        std::cout << "Continue?(Y - Yes,  N - No)" << std::endl;
+        std::cin >> goOn;
+
+        if (goOn == "N") {
+            go = false;
+        }
     }
 }

@@ -28,8 +28,9 @@ void initialTable(std::queue<std::string> &file, int table[SIZE][SIZE])
         auto line = file.front();
         file.pop();
         line = line.data();
-        for (const int item : line.data()) {
+        for (const int item : line) {
             for (int i = item; i <= SIZE; i++) {
+                table[i][i] = 0;
                 for (int j = item + 1; j <= SIZE; j++){
                     for (int len = item + 1; len <= SIZE; len++){
                         table[i][j] = len;
@@ -37,5 +38,70 @@ void initialTable(std::queue<std::string> &file, int table[SIZE][SIZE])
                 }
             }
         }
+    }
+}
+
+void showTable(int (*table)[6])
+{
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            std::cout << table[i][j];
+        }
+        std::cout << "\n";
+        visited[i] = false;
+        distance[i] = 10000;
+    }
+    distance[0] = 0;
+}
+
+void dijkstra(int (*table)[6])
+{
+    do {
+        minindex = 10000;
+        min = 10000;
+        for (int i = 0; i < SIZE; ++i) {
+            if ((!visited[i]) && (distance[i] < min)) {
+                min = distance[i];
+                minindex = i;
+            }
+        }
+        if (minindex != 1000) {
+            for (int i = 0; i < SIZE; ++i) {
+                if (table[minindex][i] > 0) {
+                    temp = min + table[minindex][i];
+                    if (temp < distance[i]) {
+                        distance[i] = temp;
+                    }
+                }
+            }
+            visited[minindex] = true;
+        }
+    } while (minindex < 10000);
+}
+
+void minimumPath(int (*table)[6], int endingPoint)
+{
+    int arr[SIZE]; //массив посещённых вершин
+    int end = endingPoint - 1; //индекс конечной вершины
+    arr[0] = end + 1; // начальный элемент - конечная вершина
+    int k = 1; //индекс предыдущей вершины
+    int weight = distance[end]; // век конечной вершины
+
+    while (end > 0) {
+        for (int i = 0; i < SIZE; ++i) {
+            if (table[end][i] != 0) {
+                int temp = weight - table[end][i];
+                if (temp == distance[i]) {
+                    weight = temp;
+                    end = i;
+                    arr[k] = i + 1;
+                    k++;
+                }
+            }
+        }
+    }
+
+    for (int j = k - 1; j >= 0; j--) {
+        std::cout << arr[j];
     }
 }
