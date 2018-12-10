@@ -5,46 +5,40 @@
 CLion 2018.3
 */
 
-#include "dijkstra_algorithm.h"
+#include <iostream>
+
+#include "Table.h"
+#include "FileReader.h"
+#include "PathReader.h"
 
 int main(int argc, char *argv[])
 {
-    int table[SIZE][SIZE];
-    int startingPoint, endingPoint;
-    bool go = true;
-    std::string goOn;
-
+    Table table;
     try {
-        auto path = readPath(argv);
-        auto text = readFile(path);
-        std::queue<std::string> queue;
-        for (auto &line : text) {
-            queue.push(line);
-        }
-        initialTable(queue, table);
+        PathReader pathReader(argv);
+        FileReader fileReader(pathReader.get());
+        table.init(fileReader.get());
     } catch (std::exception &ex) {
         std::cerr << ex.what() << std::endl;
     }
+//
+//    while (go) {
+//        std::cout << "Enter starting point: " << std::endl;
+//        std::cin >> from;
+//
+//        showTable(table);
+//        dijkstra(table);
 
-    while (go) {
-        std::cout << "Enter he starting point: " <<std::endl;
-        std::cin >> startingPoint;
+//        std::cout << "Enter the ending point: " << std::endl;
+//        std::cin >> to;
 
-        while () {
-            showTable(table);
-            dijkstra(table);
-        }
+//        minPath(table, to);
 
-        std::cout << "Enter the ending point: " << std::endl;
-        std::cin >> endingPoint;
+//        std::cout << "Continue?(Y - Yes,  N - No)" << std::endl;
+//        std::cin >> goOn;
 
-        minimumPath(table, endingPoint);
-
-        std::cout << "Continue?(Y - Yes,  N - No)" << std::endl;
-        std::cin >> goOn;
-
-        if (goOn == "N") {
-            go = false;
-        }
-    }
+//        if (goOn == "N") {
+//            go = false;
+//        }
+//    }
 }

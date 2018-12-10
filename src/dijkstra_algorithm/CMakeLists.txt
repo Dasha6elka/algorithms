@@ -1,1 +1,11 @@
-add_executable(dijkstra_algorithm main.cpp dijkstra_algorithm.cpp dijkstra_algorithm.h)
+add_executable(
+    dijkstra_algorithm
+    main.cpp
+    Table.cpp
+    Table.h
+    FileReader.cpp
+    FileReader.h
+    PathReader.h
+    PathReader.cpp
+    Reader.h
+)
