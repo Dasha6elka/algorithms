@@ -13,6 +13,8 @@ public:
 
     Table &print();
 
+    Table &search(int src);
+
 private:
     std::map<int, std::vector<std::pair<int, int>>> mAdjencyList;
     std::vector<std::string> mRows{};

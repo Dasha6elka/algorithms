@@ -17,28 +17,8 @@ int main(int argc, char *argv[])
     try {
         PathReader pathReader(argv);
         FileReader fileReader(pathReader.get());
-        table.init(fileReader.get());
+        table.init(fileReader.get()).print();
     } catch (std::exception &ex) {
         std::cerr << ex.what() << std::endl;
     }
-//
-//    while (go) {
-//        std::cout << "Enter starting point: " << std::endl;
-//        std::cin >> from;
-//
-//        showTable(table);
-//        dijkstra(table);
-
-//        std::cout << "Enter the ending point: " << std::endl;
-//        std::cin >> to;
-
-//        minPath(table, to);
-
-//        std::cout << "Continue?(Y - Yes,  N - No)" << std::endl;
-//        std::cin >> goOn;
-
-//        if (goOn == "N") {
-//            go = false;
-//        }
-//    }
 }
