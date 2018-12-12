@@ -8,4 +8,6 @@ add_executable(
     PathReader.h
     PathReader.cpp
     Reader.h
+    ConsoleTable.cpp
+    ConsoleTable.h
 )

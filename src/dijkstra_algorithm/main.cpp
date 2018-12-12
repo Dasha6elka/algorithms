@@ -14,7 +14,7 @@ CLion 2018.3
 int main(int argc, char *argv[])
 {
     Table table;
-    int edge;
+    int vertex;
     int from;
     int to;
     int mode;
@@ -24,21 +24,27 @@ int main(int argc, char *argv[])
         table.init(fileReader.get()).print();
 
         while (true) {
+            std::cout << "Choose working mode" << std::endl;
+            std::cout << "0. Exit" << std::endl;
+            std::cout << "1. Choose vertex to find shortest paths" << std::endl;
+            std::cout << "2. Enter destination vertex: " << std::endl;
             std::cin >> mode;
 
             if (mode == 1) {
-                std::cin >> edge;
-                table.search(edge).print();
+                std::cout << "Enter vertex: " << std::endl;
+                std::cin >> vertex;
+                from = vertex;
+                table.search(vertex);
             }
 
             if (mode == 2) {
-                std::cin >> from;
+                std::cout << "Enter vertex: " << std::endl;
                 std::cin >> to;
                 table.path(from, to);
             }
 
-            if (mode = 0) {
-                break;
+            if (mode == 0) {
+                return EXIT_SUCCESS;
             }
         }
 
