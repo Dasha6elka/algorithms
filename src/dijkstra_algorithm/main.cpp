@@ -14,11 +14,35 @@ CLion 2018.3
 int main(int argc, char *argv[])
 {
     Table table;
+    int edge;
+    int from;
+    int to;
+    int mode;
     try {
         PathReader pathReader(argv);
         FileReader fileReader(pathReader.get());
         table.init(fileReader.get()).print();
+
+        while (true) {
+            std::cin >> mode;
+
+            if (mode == 1) {
+                std::cin >> edge;
+                table.search(edge).print();
+            }
+
+            if (mode == 2) {
+                std::cin >> from;
+                std::cin >> to;
+                table.path(from, to);
+            }
+
+            if (mode = 0) {
+                break;
+            }
+        }
+
     } catch (std::exception &ex) {
-        std::cerr << ex.what() << std::endl;
+        std::cerr << "[ERROR]: " << ex.what() << std::endl;
     }
 }

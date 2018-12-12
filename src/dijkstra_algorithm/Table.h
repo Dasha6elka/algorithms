@@ -15,6 +15,8 @@ public:
 
     Table &search(int src);
 
+    Table &path(int from, int to);
+
 private:
     std::map<int, std::vector<std::pair<int, int>>> mAdjencyList;
     std::vector<std::string> mRows{};
@@ -22,6 +24,9 @@ private:
     void parse();
 
     std::vector<std::string> split(const std::string &s, char delim);
+
+    int findMinPath(std::pair<int, std::vector<std::pair<int, int>>> target, int from, int totalWeight,
+                    std::vector<int> &path, std::vector<bool> &visited);
 };
 
 #endif //ALGORITHMS_DIJKSTRA_ALGORITHM_H

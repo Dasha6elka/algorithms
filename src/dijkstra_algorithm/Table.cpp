@@ -65,7 +65,11 @@ void Table::parse()
         auto str = split(row, ' ');
         std::vector<int> nums{};
         for (const auto &ch : str) {
-            nums.push_back(std::stoi(ch));
+            try {
+                nums.push_back(std::stoi(ch));
+            } catch (...) {
+                throw std::runtime_error("\"" + ch + "\" is not a digit!");
+            }
         }
         auto u = static_cast<unsigned long>(nums[0]);
         auto v = nums[1];
@@ -121,4 +125,64 @@ Table &Table::search(int src)
         mAdjencyList[src] = list;
     }
     return *this;
+}
+
+Table &Table::path(int from, int to)
+{
+    std::vector<int> path;
+    std::vector<bool> visited(mAdjencyList.size() + 1, false);
+    auto target = mAdjencyList[to];
+    auto source = mAdjencyList[from];
+    int totalWeight = 0;
+    for (const auto &neighbour : source) {
+        if (neighbour.first == to) {
+            totalWeight = neighbour.second;
+        }
+    }
+    path.push_back(to);
+    auto found = findMinPath(std::pair(to, target), from, totalWeight, path, visited);
+    if (found != std::numeric_limits<int>::min()) {
+        path.push_back(found);
+    }
+    if (path.size() <= 1) {
+        return *this;
+    }
+    std::size_t index = 0;
+    std::reverse(path.begin(), path.end());
+    for (const auto &segment : path) {
+        if (segment == std::numeric_limits<int>::min()) {
+            break;
+        }
+        std::cout << segment;
+        if (index != path.size() - 1) {
+            std::cout << " -> ";
+        }
+        index++;
+    }
+    std::cout << std::endl;
+    return *this;
+}
+
+int Table::findMinPath(std::pair<int, std::vector<std::pair<int, int>>> target, int from, int totalWeight,
+                       std::vector<int> &path, std::vector<bool> &visited)
+{
+    for (const auto &neighbour : target.second) {
+        if (visited[neighbour.first]) {
+            return std::numeric_limits<int>::min();
+        }
+        visited[neighbour.first] = true;
+        int nextTotalWeight = totalWeight - neighbour.second;
+        if (nextTotalWeight == 0 && neighbour.first == from) {
+            return neighbour.first;
+        }
+        auto nextTarget = mAdjencyList[neighbour.first];
+        auto found = findMinPath(std::pair(neighbour.first, nextTarget), from, nextTotalWeight, path, visited);
+        if (found == std::numeric_limits<int>::min()) {
+            visited[neighbour.first] = false;
+            continue;
+        }
+        path.push_back(neighbour.first);
+        path.push_back(found);
+    }
+    return std::numeric_limits<int>::min();
 }
