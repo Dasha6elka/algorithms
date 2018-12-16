@@ -13,7 +13,7 @@
 Table &Table::init(const std::vector<std::string> &text)
 {
     std::for_each(text.begin(), text.end(), [this](const auto &line) {
-        this->mRows.push_back(line);
+        mRows.push_back(line);
     });
     parse();
     return *this;
@@ -22,13 +22,18 @@ Table &Table::init(const std::vector<std::string> &text)
 Table &Table::print()
 {
     ConsoleTable consoleTable;
-    consoleTable.header(" ", mAdjencyList.size());
+    consoleTable.header(" ", mAllVertices.size());
     std::size_t index = 0;
     index++;
-    traverse([&consoleTable, &index](const TMapItem &list) {
+    traverse([&consoleTable, &index, this](const TMapItem &list) {
         consoleTable.get()[index][0] = index;
-        auto row = list.first;
-        auto neighbours = list.second;
+        auto uniqueAdjencyVertex = mAdjencyList.find(list.first);
+        if (uniqueAdjencyVertex == mAdjencyList.end()) {
+            index++;
+            return;
+        }
+        auto row = (*uniqueAdjencyVertex).first;
+        auto neighbours = (*uniqueAdjencyVertex).second;
         for (const TAdjencentNeighbour &neighbour : neighbours) {
             auto col = neighbour.first;
             auto value = neighbour.second;
@@ -56,7 +61,8 @@ void Table::parse()
         auto v = nums[1];
         auto wt = nums[2];
         mAdjencyList[u].push_back(std::pair(v, wt));
-        mAdjencyList[v].push_back(std::pair(u, wt));
+        mAllVertices[u].push_back(std::pair(v, wt));
+        mAllVertices[v].push_back(std::pair(u, wt));
     });
 }
 
@@ -78,18 +84,24 @@ Table &Table::search(int src)
         TAdjencentNeighbours,
         std::greater<>
     > pq;
-    if (static_cast<std::size_t>(src) > mAdjencyList.size()) {
-        return *this;
+    if (mAllVertices.find(src) == mAllVertices.end()) {
+        throw std::runtime_error("Vertex \"" + std::to_string(src) + "\" not found!");
     }
-    std::vector<int> dist(mAdjencyList.size() + 1, std::numeric_limits<int>::max());
+    std::vector<int> dist(mAllVertices.size(), std::numeric_limits<int>::max());
     pq.push(std::pair(0, src));
     dist[src] = 0;
     while (!pq.empty()) {
         auto u = static_cast<size_t>(pq.top().second);
         pq.pop();
         TAdjencentNeighbours::iterator it;
+        if (mAdjencyList.find(u) == mAdjencyList.end()) {
+            continue;
+        }
         for (it = mAdjencyList[u].begin(); it != mAdjencyList[u].end(); ++it) {
             auto v = static_cast<size_t>((*it).first);
+            if (v >= dist.size()) {
+                continue;
+            }
             int weight = (*it).second;
             if (dist[v] > dist[u] + weight) {
                 dist[v] = dist[u] + weight;
@@ -99,14 +111,15 @@ Table &Table::search(int src)
     }
     {
         ConsoleTable consoleTable;
-        consoleTable.header(" ", mAdjencyList.size());
+        auto neighbours = mAdjencyList[src];
+        consoleTable.header(" ", static_cast<std::size_t >(mAllVertices.size()));
         std::cout << consoleTable.get();
     }
     std::cout << "-------------------- INITIAL --------------------" << std::endl;
     {
         ConsoleTable consoleTable;
         auto neighbours = mAdjencyList[src];
-        for (std::size_t i = 0; i < mAdjencyList.size() + 1; ++i) {
+        for (std::size_t i = 0; i < mAllVertices.size() + 1; ++i) {
             consoleTable.get()[0][i] = " ";
         }
         consoleTable.get()[0][0] = src;
@@ -118,20 +131,26 @@ Table &Table::search(int src)
     std::cout << "-------------------------------------------------" << std::endl;
     std::set<int> prevPath;
     std::set<int> nextPath;
-    for (std::size_t i = 0; i <= mAdjencyList.size(); ++i) {
+    for (std::size_t i = 0; i <= mAdjencyList.size() + 1; ++i) {
         if (dist[i] == std::numeric_limits<int>::max() || dist[i] == 0) {
             continue;
         }
         ConsoleTable consoleTable;
         {
             auto neighbours = mAdjencyList[src];
-            for (std::size_t j = 0; j < mAdjencyList.size() + 1; ++j) {
+            for (std::size_t j = 0; j < mAllVertices.size() + 1; ++j) {
                 consoleTable.get()[0][j] = " ";
             }
             consoleTable.get()[0][0] = src;
             for (const auto &neighbour : neighbours) {
                 consoleTable.get()[0][neighbour.first] = neighbour.second;
             }
+        }
+        if (mAdjencyList.find(src) == mAdjencyList.end()) {
+            continue;
+        }
+        if (i >= dist.size()) {
+            continue;
         }
         auto list = mAdjencyList[src];
         list.emplace_back(std::pair(i, dist[i]));
@@ -156,69 +175,91 @@ Table &Table::search(int src)
 
 Table &Table::path(int from, int to)
 {
-    std::vector<int> path;
-    std::vector<bool> visited(mAdjencyList.size() + 1, false);
-    auto target = mAdjencyList[to];
-    auto source = mAdjencyList[from];
-    int totalWeight = 0;
-    for (const auto &neighbour : source) {
-        if (neighbour.first == to) {
-            totalWeight = neighbour.second;
-        }
+    if (from == std::numeric_limits<int>::min()) {
+        throw std::runtime_error("No source vertex is set yet!");
     }
-    path.push_back(to);
-    auto found = findMinPath(std::pair(to, target), from, totalWeight, path, visited);
-    if (found != std::numeric_limits<int>::min()) {
-        path.push_back(found);
+    if (from == to) {
+        throw std::runtime_error("Source vertex is same as destination!");
     }
-    if (path.size() <= 1) {
-        return *this;
+    std::vector<bool> visited(mAdjencyList.size(), false);
+    std::vector<int> path(mAdjencyList.size(), std::numeric_limits<int>::min());
+    std::priority_queue<
+        std::pair<int, std::vector<int>>,
+        std::vector<std::pair<int, std::vector<int>>>,
+        std::greater<>> paths;
+    int index = 0;
+    findMinPath(from, to, visited, path, index, paths);
+    if (paths.empty()) {
+        throw std::runtime_error(
+            "No paths found from \"" + std::to_string(from) + "\" to \"" + std::to_string(to) + "\"");
     }
-    std::size_t index = 0;
-    std::reverse(path.begin(), path.end());
-    std::cout << "Min path from \""
-              << std::to_string(from)
-              << "\" to \""
-              << std::to_string(to)
-              << "\" is : ";
-    for (const auto &segment : path) {
-        if (segment == std::numeric_limits<int>::min()) {
-            break;
-        }
-        std::cout << segment;
-        if (index != path.size() - 1) {
+    auto minFoundPath = paths.top().second;
+    auto iter = std::remove_if(minFoundPath.begin(), minFoundPath.end(),
+                   [](const auto &item) -> bool { return item == std::numeric_limits<int>::min(); });
+    minFoundPath.resize(static_cast<unsigned long>(iter - minFoundPath.begin()));
+    std::size_t i = 0;
+    for (const auto &item : minFoundPath) {
+        std::cout << item;
+        if (i < minFoundPath.size() - 1) {
             std::cout << " -> ";
         }
-        index++;
+        i++;
     }
     std::cout << std::endl;
     return *this;
 }
 
-int Table::findMinPath(TMapItem target, int from, int totalWeight, std::vector<int> &path, std::vector<bool> &visited)
+void Table::findMinPath(int from,
+                        int to, std::vector<bool> &visited,
+                        std::vector<int> &path, int index,
+                        std::priority_queue<
+                            std::pair<int, std::vector<int>>,
+                            std::vector<std::pair<int, std::vector<int>>>,
+                            std::greater<>> &paths)
 {
-    for (const auto &neighbour : target.second) {
-        if (visited[neighbour.first]) {
-            return std::numeric_limits<int>::min();
+    visited[from] = true;
+    path[index] = from;
+    index++;
+    if (from == to) {
+        std::size_t i = 0;
+        int weight = 0;
+        for (auto it = path.begin(); it != path.end(); ++it) {
+            if (i == path.size()) {
+                break;
+            }
+            if (mAdjencyList.find(*it) == mAdjencyList.end()) {
+                continue;
+            }
+            auto node = mAdjencyList[*it];
+            TAdjencentNeighbour neighbour;
+            bool isNeighbourFound = false;
+            for (const auto &item : node) {
+                if (item.first != *(it + 1)) {
+                    continue;
+                }
+                isNeighbourFound = true;
+                neighbour = item;
+            }
+            if (!isNeighbourFound) {
+                continue;
+            }
+            auto wt = neighbour.second;
+            weight += wt;
         }
-        visited[neighbour.first] = true;
-        int nextTotalWeight = totalWeight - neighbour.second;
-        if (nextTotalWeight == 0 && neighbour.first == from) {
-            return neighbour.first;
+        paths.push(std::pair(weight, path));
+    } else {
+        for (auto &it : mAdjencyList[from]) {
+            if (!visited[it.first]) {
+                findMinPath(it.first, to, visited, path, index, paths);
+            }
         }
-        auto nextTarget = mAdjencyList[neighbour.first];
-        auto found = findMinPath(std::pair(neighbour.first, nextTarget), from, nextTotalWeight, path, visited);
-        if (found == std::numeric_limits<int>::min()) {
-            visited[neighbour.first] = false;
-            continue;
-        }
-        path.push_back(neighbour.first);
-        path.push_back(found);
     }
-    return std::numeric_limits<int>::min();
+    index--;
+    path[index] = std::numeric_limits<int>::min();
+    visited[from] = false;
 }
 
 void Table::traverse(std::function<void(const TMapItem &list)> callback)
 {
-    std::for_each(mAdjencyList.begin(), mAdjencyList.end(), std::move(callback));
+    std::for_each(mAllVertices.begin(), mAllVertices.end(), std::move(callback));
 }

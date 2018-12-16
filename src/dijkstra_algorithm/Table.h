@@ -6,6 +6,7 @@
 #include <map>
 #include <sstream>
 #include <functional>
+#include <queue>
 
 using TAdjencentNeighbour = std::pair<int, int>;
 using TAdjencentNeighbours = std::vector<TAdjencentNeighbour>;
@@ -25,13 +26,21 @@ public:
 
 private:
     TMap mAdjencyList;
+    TMap mAllVertices;
     std::vector<std::string> mRows{};
 
     void parse();
 
     std::vector<std::string> split(const std::string &s, char delim);
 
-    int findMinPath(TMapItem target, int from, int totalWeight, std::vector<int> &path, std::vector<bool> &visited);
+    void findMinPath(int from,
+                     int to, std::vector<bool> &visited,
+                     std::vector<int> &path,
+                     int index,
+                     std::priority_queue<
+                         std::pair<int, std::vector<int>>,
+                         std::vector<std::pair<int, std::vector<int>>>,
+                         std::greater<>> &paths);
 
     void traverse(std::function<void(const TMapItem &list)> callback);
 };

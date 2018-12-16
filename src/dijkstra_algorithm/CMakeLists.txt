@@ -10,4 +10,5 @@ add_executable(
     Reader.h
     ConsoleTable.cpp
     ConsoleTable.h
+    EWorkingMode.h
 )
