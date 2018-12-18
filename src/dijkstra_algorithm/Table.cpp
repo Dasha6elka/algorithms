@@ -10,6 +10,7 @@
 #include "Table.h"
 #include "ConsoleTable.h"
 
+// Инициализация
 Table &Table::init(const std::vector<std::string> &text)
 {
     std::for_each(text.begin(), text.end(), [this](const auto &line) {
@@ -19,32 +20,7 @@ Table &Table::init(const std::vector<std::string> &text)
     return *this;
 }
 
-Table &Table::print()
-{
-    ConsoleTable consoleTable;
-    consoleTable.header(" ", mAllVertices.size());
-    std::size_t index = 0;
-    index++;
-    traverse([&consoleTable, &index, this](const TMapItem &list) {
-        consoleTable.get()[index][0] = index;
-        auto uniqueAdjencyVertex = mAdjencyList.find(list.first);
-        if (uniqueAdjencyVertex == mAdjencyList.end()) {
-            index++;
-            return;
-        }
-        auto row = (*uniqueAdjencyVertex).first;
-        auto neighbours = (*uniqueAdjencyVertex).second;
-        for (const TAdjencentNeighbour &neighbour : neighbours) {
-            auto col = neighbour.first;
-            auto value = neighbour.second;
-            consoleTable.get()[row][col] = value;
-        }
-        index++;
-    });
-    std::cout << consoleTable.get();
-    return *this;
-}
-
+// Разбиение входных данных для работы в таблице
 void Table::parse()
 {
     std::for_each(mRows.begin(), mRows.end(), [this](const auto &row) {
@@ -66,6 +42,7 @@ void Table::parse()
     });
 }
 
+// Разбиение строки на пробелы
 std::vector<std::string> Table::split(const std::string &s, char delim)
 {
     std::stringstream ss(s);
@@ -76,14 +53,50 @@ std::vector<std::string> Table::split(const std::string &s, char delim)
     }
     return elems;
 }
+// Печать таблицы
+Table &Table::print()
+{
+    ConsoleTable consoleTable;
+    consoleTable.header(" ", mAllVertices.size()); // Шапка таблицы
+    std::size_t index = 0;
+    index++;
+    traverse([&consoleTable, &index, this](const TMapItem &list) {
+        consoleTable.get()[index][0] = index;
+        auto uniqueAdjencyVertex = mAdjencyList.find(list.first);
+        // Выход из цикла, если вершина не найдена
+        if (uniqueAdjencyVertex == mAdjencyList.end()) {
+            index++;
+            return;
+        }
+        auto row = (*uniqueAdjencyVertex).first;
+        auto neighbours = (*uniqueAdjencyVertex).second;
+        for (const TAdjencentNeighbour &neighbour : neighbours) {
+            auto col = neighbour.first;
+            auto value = neighbour.second;
+            consoleTable.get()[row][col] = value; // Запись в таблицу значения
+        }
+        index++;
+    });
+    std::cout << consoleTable.get();
+    return *this;
+}
 
+// Создание прототипа
+void Table::traverse(std::function<void(const TMapItem &list)> callback)
+{
+    std::for_each(mAllVertices.begin(), mAllVertices.end(), std::move(callback));
+}
+
+
+// Нахождение минимальных путей до каждой из вершин
 Table &Table::search(int src)
 {
     std::priority_queue<
         TAdjencentNeighbour,
         TAdjencentNeighbours,
         std::greater<>
-    > pq;
+    > pq; // Использование приоритетной очереди
+    // Вывод ошибки, если вершина не найдена
     if (mAllVertices.find(src) == mAllVertices.end()) {
         throw std::runtime_error("Vertex \"" + std::to_string(src) + "\" not found!");
     }
@@ -94,15 +107,18 @@ Table &Table::search(int src)
         auto u = static_cast<size_t>(pq.top().second);
         pq.pop();
         TAdjencentNeighbours::iterator it;
+        // Выход из цикла, если вершина не найдена
         if (mAdjencyList.find(u) == mAdjencyList.end()) {
             continue;
         }
         for (it = mAdjencyList[u].begin(); it != mAdjencyList[u].end(); ++it) {
             auto v = static_cast<size_t>((*it).first);
+            // Выход из цикла, если размер превышает существующий
             if (v >= dist.size()) {
                 continue;
             }
-            int weight = (*it).second;
+            int weight = (*it).second; // Инициализация веса
+            // ????????????????????????????????????????????????????????????????????????????
             if (dist[v] > dist[u] + weight) {
                 dist[v] = dist[u] + weight;
                 pq.push(std::pair(dist[v], v));
@@ -112,7 +128,7 @@ Table &Table::search(int src)
     {
         ConsoleTable consoleTable;
         auto neighbours = mAdjencyList[src];
-        consoleTable.header(" ", static_cast<std::size_t >(mAllVertices.size()));
+        consoleTable.header(" ", static_cast<std::size_t >(mAllVertices.size())); // Шапка таблицы
         std::cout << consoleTable.get();
     }
     std::cout << "-------------------- INITIAL --------------------" << std::endl;
@@ -120,11 +136,11 @@ Table &Table::search(int src)
         ConsoleTable consoleTable;
         auto neighbours = mAdjencyList[src];
         for (std::size_t i = 0; i < mAllVertices.size() + 1; ++i) {
-            consoleTable.get()[0][i] = " ";
+            consoleTable.get()[0][i] = " "; // Заполнение ячеек пробелом
         }
-        consoleTable.get()[0][0] = src;
+        consoleTable.get()[0][0] = src; // Значение вершины в самом левом столбце
         for (const auto &neighbour : neighbours) {
-            consoleTable.get()[0][neighbour.first] = neighbour.second;
+            consoleTable.get()[0][neighbour.first] = neighbour.second; // Добавление первоначальных путей
         }
         std::cout << consoleTable.get() << std::endl;
     }
@@ -132,10 +148,11 @@ Table &Table::search(int src)
     std::set<int> prevPath;
     std::set<int> nextPath;
     for (std::size_t i = 0; i <= mAdjencyList.size() + 1; ++i) {
+        // Прерыванеи цикла при слишком большом или нулевом значении дистанции
         if (dist[i] == std::numeric_limits<int>::max() || dist[i] == 0) {
             continue;
         }
-        ConsoleTable consoleTable;
+        ConsoleTable consoleTable; // Как мы можем просто так писать {}?
         {
             auto neighbours = mAdjencyList[src];
             for (std::size_t j = 0; j < mAllVertices.size() + 1; ++j) {
@@ -153,13 +170,13 @@ Table &Table::search(int src)
             continue;
         }
         auto list = mAdjencyList[src];
-        list.emplace_back(std::pair(i, dist[i]));
+        list.emplace_back(std::pair(i, dist[i])); // Добавление в вектор вершину и её вес
         mAdjencyList[src] = list;
         for (const auto &neighbour : list) {
             consoleTable.get()[0][neighbour.first] = neighbour.second;
         }
         for (const auto &neighbour : list) {
-            nextPath.insert(neighbour.first);
+            nextPath.insert(neighbour.first); // Вставка вершин-соседей в следующий цикл
         }
         auto vertex = std::to_string(i);
         std::cout << "-------------------- FIX VERTEX " + vertex + " --------------------" << std::endl;
@@ -173,6 +190,7 @@ Table &Table::search(int src)
     return *this;
 }
 
+// Нахождение пути
 Table &Table::path(int from, int to)
 {
     if (from == std::numeric_limits<int>::min()) {
@@ -181,7 +199,7 @@ Table &Table::path(int from, int to)
     if (from == to) {
         throw std::runtime_error("Source vertex is same as destination!");
     }
-    std::vector<bool> visited(mAdjencyList.size(), false);
+    std::vector<bool> visited(mAdjencyList.size(), false); // Посещаемость вершины
     std::vector<int> path(mAdjencyList.size(), std::numeric_limits<int>::min());
     std::priority_queue<
         std::pair<int, std::vector<int>>,
@@ -193,11 +211,14 @@ Table &Table::path(int from, int to)
         throw std::runtime_error(
             "No paths found from \"" + std::to_string(from) + "\" to \"" + std::to_string(to) + "\"");
     }
-    auto minFoundPath = paths.top().second;
+    auto minFoundPath = paths.top().second; // Взятие найденного минимального значения пути
+    // Вектор с удаленными значениями, удовлетворяющими условие
     auto iter = std::remove_if(minFoundPath.begin(), minFoundPath.end(),
                    [](const auto &item) -> bool { return item == std::numeric_limits<int>::min(); });
+    // Определение нового размера вектора
     minFoundPath.resize(static_cast<unsigned long>(iter - minFoundPath.begin()));
     std::size_t i = 0;
+    // Печать минимального пути
     for (const auto &item : minFoundPath) {
         std::cout << item;
         if (i < minFoundPath.size() - 1) {
@@ -209,6 +230,7 @@ Table &Table::path(int from, int to)
     return *this;
 }
 
+// Нахождение минимального пути
 void Table::findMinPath(int from,
                         int to, std::vector<bool> &visited,
                         std::vector<int> &path, int index,
@@ -223,6 +245,7 @@ void Table::findMinPath(int from,
     if (from == to) {
         std::size_t i = 0;
         int weight = 0;
+        // Ссумирование веса, если найдена вершина минимального пути
         for (auto it = path.begin(); it != path.end(); ++it) {
             if (i == path.size()) {
                 break;
@@ -257,9 +280,4 @@ void Table::findMinPath(int from,
     index--;
     path[index] = std::numeric_limits<int>::min();
     visited[from] = false;
-}
-
-void Table::traverse(std::function<void(const TMapItem &list)> callback)
-{
-    std::for_each(mAllVertices.begin(), mAllVertices.end(), std::move(callback));
 }
