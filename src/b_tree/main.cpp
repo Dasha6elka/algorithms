@@ -4,50 +4,56 @@
 22. Составить   программу   удаления  записи   из    сильно
 ветвящегося Б-дерева порядка N (13).
 Щеглова Дарья ПС - 23
-childNumbersLion 2018.3
+CLion 2018.3
 */
 
-#include <iostream>
 #include <limits>
-#include <string>
 
 #include "BTree.h"
-#include "cxxopts/cxxopts.h"
 
     int main(int argc, char* argv[])
     {
-        int del = std::numeric_limits<int>::max();
-        int degree = std::numeric_limits<int>::max();
-        int order = std::numeric_limits<int>::max();
-        std::string mode;
-
-        bool debug = true;
+        std::vector<std::pair<std::string, std::string>> dictionary;
+        std::vector<int> keys;
+        int degree = 3;
+        int mode, item;
 
         try {
-            cxxopts::Options options("Key", "Info");
-            options.add_options()("order", "B-tree maximum order (default = 4)", cxxopts::value<int>()->default_value("4"))("debug", "Specify if want to run in debug mode", cxxopts::value<bool>()->default_value("false"));
-            auto result = options.parse(argc, argv);
-            debug = result["debug"].as<bool>();
-            order = result["order"].as<int>();
-            degree = (degree + 1) / 2;
+            auto path = readPath(argv);
+            auto text = readFile(path);
+
+            splitLine(text, dictionary);
 
             BTree tree(degree);
 
+            for (const auto &di : dictionary) {
+                tree.insert(std::stoi(di.first));
+            }
+
             while (true) {
                 try {
-                    std::cout << "Traversal of the B-tree(" << std::to_string(order) << ")"
-                              << " is " << std::endl;
                     tree.traverse();
                     std::cout << std::endl;
 
-                    std::cout << "Working mode (delete, exit): ";
+                    std::cout << "Modes:" << std::endl;
+                    std::cout << "1. View node information" << std::endl;
+                    std::cout << "2. Delete node" << std::endl;
+                    std::cout << "3. Exit" << std::endl;
+
+                    std::cout << "Enter mode: ";
                     std::cin >> mode;
 
-                    if (mode == "delete") {
-                        std::cout << "Delete node: ";
-                        std::cin >> del;
-                        tree.remove(del);
-                    } else if (mode == "exit") {
+                    if (mode == 1) {
+                        std::cout << "Enter node: ";
+                        std::cin >> item;
+                        std::cout << std::endl;
+                        tree.search(item);
+                    }
+
+                    if (mode == 2) {
+                        std::cin >> item;
+                        tree.remove(item);
+                    } else if (mode == 3) {
                         return EXIT_SUCCESS;
                     }
                 } catch (std::exception& ex) {

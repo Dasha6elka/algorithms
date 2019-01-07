@@ -1,14 +1,20 @@
+#include <utility>
+
 #ifndef ALGORITHMS_BTREE_H
 #define ALGORITHMS_BTREE_H
 
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+#include <queue>
 
 // A BTree node
 class BTreeNode
 {
     int *keys;  // An array of keys
-    int t;      // Minimum degree (defines the range for number of keys)
-    BTreeNode **C; // An array of child pointers
+    int minimumDegree;      // Minimum degree (defines the range for number of keys)
+    BTreeNode **childPointers; // An array of child pointers
     int n;     // Current number of keys
     bool leaf; // Is true when node is leaf. Otherwise false
 
@@ -17,7 +23,7 @@ public:
     BTreeNode(int _t, bool _leaf);   // Constructor
 
     // A function to traverse all nodes in a subtree rooted with this node
-    void traverse();
+    void traverse(int depth);
 
     // A function to search a key in subtree rooted with this node.
     BTreeNode *search(int k);   // returns NULL if k is not present.
@@ -57,7 +63,7 @@ public:
     int getSucc(int idx);
 
     // A function to fill up the child node present in the idx-th
-    // position in the C[] array if that child has less than t-1 keys
+    // position in the C[] array if that child has less than minimumDegree-1 keys
     void fill(int idx);
 
     // A function to borrow a key from the C[idx-1]-th node and place
@@ -90,10 +96,7 @@ public:
         t = _t;
     }
 
-    void traverse()
-    {
-        if (root != nullptr) root->traverse();
-    }
+    void traverse();
 
     // function to search a key in this tree
     BTreeNode* search(int k)
@@ -108,5 +111,13 @@ public:
     void remove(int k);
 
 };
+
+std::string readPath(char *argv[]);
+
+std::vector<std::string> readFile(const std::string &path);
+
+std::vector<std::pair<std::string, std::string>> splitLine(
+    std::vector<std::string> result,
+    std::vector<std::pair<std::string, std::string>> &dict);
 
 #endif //ALGORITHMS_BTREE_H
