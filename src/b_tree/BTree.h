@@ -1,4 +1,5 @@
-#include <utility>
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
 #ifndef ALGORITHMS_BTREE_H
 #define ALGORITHMS_BTREE_H
@@ -19,6 +20,7 @@ class BTreeNode
     bool leaf; // Is true when node is leaf. Otherwise false
 
 public:
+    std::string info;
 
     BTreeNode(int _t, bool _leaf);   // Constructor
 
@@ -90,19 +92,12 @@ class BTree
 public:
 
     // Constructor (Initializes tree as empty)
-    explicit BTree(int _t)
-    {
-        root = nullptr;
-        t = _t;
-    }
+    explicit BTree(int _t);
 
     void traverse();
 
     // function to search a key in this tree
-    BTreeNode* search(int k)
-    {
-        return (root == nullptr)? nullptr : root->search(k);
-    }
+    BTreeNode* search(int k);
 
     // The main function that inserts a new key in this B-Tree
     void insert(int k);
@@ -116,8 +111,16 @@ std::string readPath(char *argv[]);
 
 std::vector<std::string> readFile(const std::string &path);
 
-std::vector<std::pair<std::string, std::string>> splitLine(
+std::vector<std::pair<std::string, std::string>> fill(
     std::vector<std::string> result,
     std::vector<std::pair<std::string, std::string>> &dict);
 
+std::string find(std::string &key, std::vector<std::pair<std::string, std::string>> &dictionary);
+
+void remove(std::string &key, std::vector<std::pair<std::string, std::string>> &dictionary);
+
+void sync(const std::string& path, std::vector<std::pair<std::string, std::string>> &dictionary);
+
 #endif //ALGORITHMS_BTREE_H
+
+#pragma clang diagnostic pop

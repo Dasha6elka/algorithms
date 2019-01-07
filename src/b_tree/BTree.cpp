@@ -22,8 +22,8 @@ std::vector<std::string> readFile(const std::string &path)
     return result;
 }
 
-std::vector<std::pair<std::string, std::string>> splitLine(std::vector<std::string> result,
-                                                           std::vector<std::pair<std::string, std::string>> &dict)
+std::vector<std::pair<std::string, std::string>> fill(std::vector<std::string> result,
+                                                      std::vector<std::pair<std::string, std::string>> &dict)
 {
     while (!result.empty()) {
         std::string line = result.front();
@@ -36,6 +36,37 @@ std::vector<std::pair<std::string, std::string>> splitLine(std::vector<std::stri
         dict.emplace_back(key, info);
     }
     return dict;
+}
+
+std::string find(std::string &key, std::vector<std::pair<std::string, std::string>> &dictionary)
+{
+    for (const auto &item : dictionary) {
+        if (key == item.first) {
+            return item.second;
+        }
+    }
+    return std::string();
+}
+
+void sync(const std::string &path, std::vector<std::pair<std::string, std::string>> &dictionary)
+{
+    std::ofstream ofs;
+    ofs.open(path, std::ofstream::out | std::ofstream::trunc);
+    for (const auto& item : dictionary) {
+        ofs << item.first << ' ' << item.second << std::endl;
+    }
+    ofs.close();
+}
+
+void remove(std::string &key, std::vector<std::pair<std::string, std::string>> &dictionary)
+{
+    int index = 0;
+    for (const auto &item : dictionary) {
+        if (key == item.first) {
+            dictionary.erase(dictionary.begin() + index);
+        }
+        index++;
+    }
 }
 
 // Инициализация
@@ -308,6 +339,17 @@ void BTree::insert(int k)
 void BTree::traverse()
 {
     if (root != nullptr) root->traverse(0);
+}
+
+BTree::BTree(int _t)
+{
+    root = nullptr;
+    t = _t;
+}
+
+BTreeNode *BTree::search(int k)
+{
+    return (root == nullptr)? nullptr : root->search(k);
 }
 
 // Вставка, если страница слишком мала
