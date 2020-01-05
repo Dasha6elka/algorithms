@@ -1,4 +1,4 @@
-# Algorithms and Data Structures projects
+# algorithms
 
 ### Tools
 
